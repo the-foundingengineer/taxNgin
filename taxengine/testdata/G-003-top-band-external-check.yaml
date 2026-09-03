@@ -1,0 +1,43 @@
+# GOLDEN CASE
+# Review status: EXTERNALLY CORROBORATED, awaiting practitioner sign-off.
+
+id: G-003
+title: "Senior executive, ₦60,000,000 gross, no pension, no rent relief"
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Exercises all six bands including the 25% top band. The expected figure of
+  ₦12,930,000 matches an independently published worked example
+  (SmartSMSSolutions PAYE calculator, which itself reports agreement with a
+  RegCompass worked example at the same salary band). Two independent parties
+  arriving at the same number is meaningful corroboration of the band table,
+  though it is NOT a substitute for practitioner sign-off.
+
+given:
+  residency: resident
+  months_employed: 12
+  income:
+    - { category: EMPLOYMENT, label: "Salary", naira: 60000000 }
+  declared_bases: {}
+  reliefs: []
+  credits: []
+
+expect:
+  gross_income:      60000000
+  total_reliefs:            0
+  chargeable_income: 60000000
+  bands:
+    - { slice: "0 – 800,000",              amount:   800000, rate: "0%",  tax:       0 }
+    - { slice: "800,000 – 3,000,000",      amount:  2200000, rate: "15%", tax:  330000 }
+    - { slice: "3,000,000 – 12,000,000",   amount:  9000000, rate: "18%", tax: 1620000 }
+    - { slice: "12,000,000 – 25,000,000",  amount: 13000000, rate: "21%", tax: 2730000 }
+    - { slice: "25,000,000 – 50,000,000",  amount: 25000000, rate: "23%", tax: 5750000 }
+    - { slice: "above 50,000,000",         amount: 10000000, rate: "25%", tax: 2500000 }
+  tax_payable:       12930000
+  total_credits:            0
+  balance:           12930000
+  exemption_applied: null
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

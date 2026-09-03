@@ -1,0 +1,36 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-001
+title: "National minimum wage earner, full year, PAYE wrongly deducted"
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests the minimum-wage exemption specifically, and the fact that it is NOT
+  redundant with the 0% band: ₦70,000/month annualises to ₦840,000, which sits
+  ABOVE the ₦800,000 zero band. Without the exemption this taxpayer would owe
+  15% on ₦40,000. With it they owe nothing and any PAYE deducted is refundable.
+  VERIFY with the practitioner whether the statutory test is monthly or annual.
+
+given:
+  residency: resident
+  months_employed: 12
+  income:
+    - { category: EMPLOYMENT, label: "Wages", naira: 840000 }
+  declared_bases: {}
+  reliefs: []
+  credits:
+    - { code: PAYE_REMITTED, naira: 6000 }
+
+expect:
+  gross_income:        840000
+  total_reliefs:            0
+  chargeable_income:        0
+  tax_payable:              0
+  total_credits:         6000
+  balance:              -6000    # negative = refund due
+  exemption_applied:   MINIMUM_WAGE
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

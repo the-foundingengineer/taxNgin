@@ -1,0 +1,46 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-002
+title: "Rent relief cap boundary — rent of ₦2,500,000 lands exactly on the cap"
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  20% of ₦2,500,000 is exactly ₦500,000, the cap. Any off-by-one in the cap
+  comparison (< versus <=) shows up here and nowhere else. Pair with a case at
+  ₦2,499,999 and ₦2,500,001 in the property tests.
+  CONTESTED INPUT: at least one secondary source states the cap is ₦200,000
+  rather than ₦500,000. If the practitioner confirms ₦200,000, this case and
+  the rule set both change.
+
+given:
+  residency: resident
+  months_employed: 12
+  income:
+    - { category: EMPLOYMENT, label: "Salary", naira: 8400000 }
+  declared_bases:
+    annual_rent_paid: 2500000
+  reliefs:
+    - { code: PENSION,     naira: 672000, evidence: true }
+    - { code: RENT_RELIEF, evidence: true }
+  credits: []
+
+expect:
+  gross_income:       8400000
+  reliefs:
+    PENSION:           672000
+    RENT_RELIEF:       500000    # exactly at cap
+  total_reliefs:      1172000
+  chargeable_income:  7228000
+  bands:
+    - { slice: "0 – 800,000",            amount:  800000, rate: "0%",  tax:      0 }
+    - { slice: "800,000 – 3,000,000",    amount: 2200000, rate: "15%", tax: 330000 }
+    - { slice: "3,000,000 – 7,228,000",  amount: 4228000, rate: "18%", tax: 761040 }
+  tax_payable:        1091040
+  total_credits:            0
+  balance:            1091040
+  exemption_applied:  null
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

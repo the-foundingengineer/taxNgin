@@ -1,0 +1,181 @@
+# Nigeria — Personal Income Tax rule set
+#
+# IMMUTABLE ONCE PUBLISHED. To change a value, publish a new version.
+# Never edit a published file in place; historical assessments reference it by version.
+#
+# STATUS: DRAFT — approved_by is empty. The engine REFUSES to load a DRAFT rule set
+# unless allow_draft is explicitly set, so this cannot reach production by accident.
+
+jurisdiction: NG
+year_of_assessment: 2026
+version: "0.1.0-draft"
+effective_from: 2026-01-01
+effective_to: null
+status: DRAFT
+
+approved_by:
+  name: ""            # CITN member full name
+  membership_no: ""   # CITN membership number
+  approved_at: null   # date of sign-off
+  scope: "Bands, reliefs, exemptions and rounding for individual PIT, YoA 2026."
+
+source:
+  primary: "Nigeria Tax Act 2025, Fourth Schedule (bands); NTA 2025 s.30(1), s.4 (chargeable income, income scope)"
+  secondary:
+    - "PwC Worldwide Tax Summaries — Nigeria, Individual: Taxes on personal income; Deductions (reviewed 29 May 2026)"
+
+# ---------------------------------------------------------------------------
+# Arithmetic policy. Changing any of this changes every number the engine
+# produces, so it is data and it is versioned.
+# ---------------------------------------------------------------------------
+arithmetic:
+  unit: kobo              # all money is int64 kobo. 1 naira = 100 kobo.
+  rate_unit: basis_points # 1500 bp = 15.00%. No floating point anywhere.
+  rounding_mode: half_up
+  # Where the single rounding happens. "final_liability" accumulates
+  # (slice * bp) across all bands and divides by 10000 exactly once.
+  # "per_band" rounds each band product. They differ by a few kobo; the
+  # difference is visible to a user with a calculator, so it is declared.
+  rounding_applied_at: final_liability
+
+# ---------------------------------------------------------------------------
+# Bands, applied to chargeable income. upper_kobo is the top of the slice.
+# The final band must have upper_kobo: null.
+# ---------------------------------------------------------------------------
+bands:
+  - { upper_kobo:    80000000, rate_bp:    0, label: "First ₦800,000" }
+  - { upper_kobo:   300000000, rate_bp: 1500, label: "₦800,001 – ₦3,000,000" }
+  - { upper_kobo:  1200000000, rate_bp: 1800, label: "₦3,000,001 – ₦12,000,000" }
+  - { upper_kobo:  2500000000, rate_bp: 2100, label: "₦12,000,001 – ₦25,000,000" }
+  - { upper_kobo:  5000000000, rate_bp: 2300, label: "₦25,000,001 – ₦50,000,000" }
+  - { upper_kobo:        null, rate_bp: 2500, label: "Above ₦50,000,000" }
+
+# ---------------------------------------------------------------------------
+# Reliefs. Two evaluator kinds only — resist adding a third without a fight.
+#
+#   actual        : deduct the amount actually incurred, optional absolute cap
+#   rate_of_base  : deduct rate_bp of a declared base figure, optional cap
+#
+# NOTE ON PENSION. The engine takes the ACTUAL contribution amount, it does
+# not compute 8% of anything. The pensionable base is contested — PwC's own
+# worked example uses 8% of gross income, while the Pension Reform Act basis
+# is commonly stated as basic + housing + transport. That is payroll's
+# problem, not the tax engine's. Taking the actual figure sidesteps it.
+# ---------------------------------------------------------------------------
+reliefs:
+  - code: RENT_RELIEF
+    label: "Rent relief"
+    kind: rate_of_base
+    base: annual_rent_paid
+    rate_bp: 2000                # 20%
+    cap_kobo: 50000000           # ₦500,000
+    requires_evidence: true
+    citation: "NTA 2025 — rent relief (replaces Consolidated Relief Allowance)"
+    note: >
+      Sources conflict. PwC, TechCabal, BusinessDay and SmartSMSSolutions all state
+      lower of ₦500,000 or 20% of annual rent. At least one secondary source states
+      a ₦200,000 cap, which appears to track an earlier draft of the Bill.
+      MUST be confirmed against the gazetted text before this rule set leaves DRAFT.
+
+  - code: PENSION
+    label: "Pension contribution (employee)"
+    kind: actual
+    cap_kobo: null
+    requires_evidence: true
+    citation: "NTA 2025 — national pension scheme contributions deductible"
+
+  - code: NHF
+    label: "National Housing Fund contribution"
+    kind: actual
+    cap_kobo: null
+    requires_evidence: true
+    citation: "NTA 2025 — NHF contributions deductible"
+
+  - code: NHIS
+    label: "National Health Insurance contribution"
+    kind: actual
+    cap_kobo: null
+    requires_evidence: true
+    citation: "NTA 2025 — NHIS contributions deductible"
+
+  - code: LIFE_ASSURANCE
+    label: "Life assurance premium (self and spouse)"
+    kind: actual
+    cap_kobo: null
+    requires_evidence: true
+    citation: "NTA 2025 — restricted to actual premium paid in the year preceding the year of assessment"
+
+  - code: MEDICAL
+    label: "Medical expenses and insurance premiums"
+    kind: actual
+    cap_kobo: null
+    requires_evidence: true
+    citation: "NTA 2025 — medical expenses and insurance premiums deductible"
+
+  - code: HOUSING_LOAN_INTEREST
+    label: "Interest on loan for owner-occupied residence"
+    kind: actual
+    cap_kobo: null
+    requires_evidence: true
+    citation: "NTA 2025 — deductible from employment compensation"
+
+  - code: BUSINESS_EXPENSES
+    label: "Allowable business expenses"
+    kind: actual
+    cap_kobo: null
+    requires_evidence: true
+    citation: "NTA 2025 — wholly and exclusively incurred in producing the income"
+
+# ---------------------------------------------------------------------------
+# Full exemptions, evaluated BEFORE bands. If one fires, liability is zero
+# and the trace records which one and why.
+# ---------------------------------------------------------------------------
+exemptions:
+  - code: MINIMUM_WAGE
+    label: "National minimum wage earner"
+    kind: full_exemption_if_at_or_below
+    subject: employment_income_annualised
+    threshold_kobo: 84000000     # ₦70,000/month × 12
+    applies_when_only_income_is: [EMPLOYMENT]
+    citation: "Employees earning not more than the national minimum wage (₦70,000) are not liable to tax or monthly PAYE"
+    note: >
+      VERIFY whether the statutory test is applied monthly or annually, and how it
+      behaves for a part-year employee. Annualising is the conservative reading and
+      is what this rule set implements. Note ₦840,000 sits ABOVE the ₦800,000 zero
+      band, so this exemption is not redundant.
+
+# ---------------------------------------------------------------------------
+# Credits set against computed tax. Order matters and is declared.
+# ---------------------------------------------------------------------------
+credits:
+  - code: PAYE_REMITTED
+    label: "PAYE already deducted and remitted by employer"
+    order: 1
+  - code: FOREIGN_TAX_CREDIT
+    label: "Unilateral relief for foreign tax paid"
+    order: 2
+    citation: "NTA 2025 — credit for tax paid in the source country on foreign income also taxable in Nigeria"
+    note: "Capped at the Nigerian tax attributable to that foreign income. Not implemented in v1."
+  - code: WHT_SUFFERED
+    label: "Withholding tax suffered"
+    order: 3
+
+# ---------------------------------------------------------------------------
+# Penalties. Modelled so a late filer sees the real number, not a warning.
+# ---------------------------------------------------------------------------
+penalties:
+  filing_deadline: 2027-03-31    # 90 days after year end for YoA 2026 income
+  late_filing:
+    first_month_kobo: 10000000   # ₦100,000
+    per_subsequent_month_kobo: 5000000  # ₦50,000
+    citation: "NTAA 2025 s.101"
+  late_payment:
+    surcharge_bp: 1000           # 10% of unpaid tax
+    interest_basis: CBN_MPR      # supplied at call time; the engine does not fetch it
+    citation: "NTAA 2025 — late payment surcharge plus interest at prevailing CBN MPR"
+  failure_to_register:
+    initial_kobo: 5000000        # ₦50,000
+    per_month_kobo: 2500000      # ₦25,000
+    citation: "NTAA 2025 s.100"
+  objection_window_days: 30
+  citation_objection: "NTAA 2025 s.34 — administrative assessment becomes binding if not objected to within 30 days"

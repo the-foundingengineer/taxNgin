@@ -1,0 +1,59 @@
+# GOLDEN CASE
+#
+# This file is the review artefact. A CITN practitioner reads THIS, not the Go.
+# Everything they need to check the arithmetic is on this page in naira.
+#
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-004
+title: "Mid-career professional, ₦25m gross, rents at ₦2m, 8% pension"
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Mirrors the fact pattern of PwC's published sample personal income tax
+  calculation for Nigeria (gross ₦25,000,000, annual rent ₦2,000,000, pension
+  at 8% of gross, no NHF). Reconciling against an independently published
+  figure is the cheapest external check available before sign-off.
+  ACTION: pull PwC's stated result and confirm it equals expect.tax_payable
+  below. If it differs, the difference is a finding, not a rounding quirk.
+
+# --- Inputs, in naira, as a human would state them -------------------------
+given:
+  residency: resident
+  months_employed: 12
+  income:
+    - { category: EMPLOYMENT, label: "Salary — Acme Ltd", naira: 25000000 }
+  declared_bases:
+    annual_rent_paid: 2000000
+  reliefs:
+    - { code: PENSION,     naira: 2000000, evidence: true, note: "8% of gross, per PwC's assumption" }
+    - { code: RENT_RELIEF, evidence: true }
+  credits: []
+
+# --- Expected output, worked by hand -----------------------------------------
+expect:
+  gross_income:       25000000
+  reliefs:
+    PENSION:           2000000
+    RENT_RELIEF:        400000   # min(20% × 2,000,000 = 400,000 ; cap 500,000) -> under cap
+  total_reliefs:       2400000
+  chargeable_income:  22600000
+  bands:
+    - { slice: "0 – 800,000",          amount:   800000, rate: "0%",   tax:       0 }
+    - { slice: "800,000 – 3,000,000",  amount:  2200000, rate: "15%",  tax:  330000 }
+    - { slice: "3,000,000 – 12,000,000", amount: 9000000, rate: "18%", tax: 1620000 }
+    - { slice: "12,000,000 – 22,600,000", amount: 10600000, rate: "21%", tax: 2226000 }
+  tax_payable:         4176000
+  total_credits:             0
+  balance:             4176000   # positive = payable
+  exemption_applied:   null
+
+# --- Sign-off ----------------------------------------------------------------
+review:
+  status: UNVERIFIED
+  reviewer_name: ""
+  reviewer_membership_no: ""
+  reviewed_at: null
+  comments: ""

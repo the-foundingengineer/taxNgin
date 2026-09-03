@@ -1,0 +1,47 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-005
+title: "PAYE employee with freelance and rental income, over-withheld"
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  The v1 target user. Employer withheld PAYE on salary alone; the taxpayer has
+  side income the employer never saw. Tests multi-category aggregation and the
+  signed balance field producing a refund rather than a payment.
+  Chargeable: 9,000,000 + 1,800,000 + 1,200,000 = 12,000,000 gross
+             less pension 720,000 less rent relief 500,000 = 10,780,000
+
+given:
+  residency: resident
+  months_employed: 12
+  income:
+    - { category: EMPLOYMENT,   label: "Salary — Acme Ltd",    naira: 9000000 }
+    - { category: PROFESSIONAL, label: "Consulting fees",      naira: 1800000 }
+    - { category: RENT_RECEIVED,label: "Rent from Yaba flat",  naira: 1200000 }
+  declared_bases:
+    annual_rent_paid: 3600000
+  reliefs:
+    - { code: PENSION,     naira: 720000, evidence: true }
+    - { code: RENT_RELIEF, evidence: true }
+  credits:
+    - { code: PAYE_REMITTED, naira: 1600000 }
+
+expect:
+  gross_income:      12000000
+  reliefs:
+    PENSION:           720000
+    RENT_RELIEF:       500000   # min(20% × 3,600,000 = 720,000 ; cap 500,000) -> capped
+  total_reliefs:      1220000
+  chargeable_income: 10780000
+  bands:
+    - { slice: "0 – 800,000",             amount:  800000, rate: "0%",  tax:       0 }
+    - { slice: "800,000 – 3,000,000",     amount: 2200000, rate: "15%", tax:  330000 }
+    - { slice: "3,000,000 – 10,780,000",  amount: 7780000, rate: "18%", tax: 1400400 }
+  tax_payable:        1730400
+  total_credits:      1600000
+  balance:             130400   # positive: side income was never withheld on
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }
