@@ -1,0 +1,38 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-029
+title: "Salary, rental income, and dividend income combined"
+kind: compute
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests multi-source aggregation across employment, rental, and dividend categories.
+  Gross ₦11,000,000 (₦8M salary + ₦2M rent + ₦1M dividend).
+
+given:
+  residency: resident
+  months_employed: 12
+  income:
+    - { category: EMPLOYMENT,    label: "Salary",        naira: 8000000 }
+    - { category: RENT_RECEIVED, label: "Rental income", naira: 2000000 }
+    - { category: DIVIDEND,      label: "Dividends",     naira: 1000000 }
+  declared_bases: {}
+  reliefs: []
+  credits: []
+
+expect:
+  gross_income:      11000000
+  total_reliefs:            0
+  chargeable_income: 11000000
+  bands:
+    - { slice: "0 – 800,000",             amount:  800000, rate: "0%",  tax:       0 }
+    - { slice: "800,000 – 3,000,000",     amount: 2200000, rate: "15%", tax:  330000 }
+    - { slice: "3,000,000 – 11,000,000",  amount: 8000000, rate: "18%", tax: 1440000 }
+  tax_payable:        1770000
+  total_credits:            0
+  balance:            1770000
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

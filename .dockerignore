@@ -1,0 +1,12 @@
+web/node_modules
+web/dist
+bin
+*.md
+.git
+.claude
+tasks
+docs
+tax
+testdata
+log.txt
+dev.sh

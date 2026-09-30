@@ -1,7 +1,31 @@
 {
   "permissions": {
     "allow": [
-      "Bash(go version *)"
+      "Bash(go version *)",
+      "Bash(go build *)",
+      "Bash(go test *)",
+      "Bash(go vet *)",
+      "Bash(go get *)",
+      "Bash(npx tsc *)",
+      "WebSearch",
+      "WebFetch(domain:etax.lirs.net)",
+      "WebFetch(domain:unilag.edu.ng)",
+      "WebFetch(domain:techcabal.com)",
+      "WebFetch(domain:etax.readme.io)",
+      "WebFetch(domain:www.mexc.com)",
+      "WebFetch(domain:bhluemountain.com)",
+      "WebFetch(domain:lirs.gov.ng)",
+      "WebFetch(domain:thelagosvoice.com)",
+      "WebFetch(domain:www.kuda.com)",
+      "WebFetch(domain:rexobeconsult.com)",
+      "WebFetch(domain:technext24.com)",
+      "WebFetch(domain:www.pensionnigeria.com)",
+      "WebFetch(domain:proshare.co)",
+      "WebFetch(domain:assets.kpmg.com)",
+      "WebFetch(domain:www.fscprofessionals.com)",
+      "WebFetch(domain:sonibaze.ng)",
+      "WebFetch(domain:www.mondaq.com)",
+      "Bash(npm run *)"
     ]
   }
 }

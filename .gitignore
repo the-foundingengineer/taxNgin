@@ -16,6 +16,9 @@ go.work.sum
 
 # Dependency directories
 vendor/
+node_modules/
+web/node_modules/
+web/dist/
 
 # IDE
 .idea/
@@ -27,3 +30,7 @@ vendor/
 # OS
 .DS_Store
 Thumbs.db
+
+# Logs & Local Config
+*.log
+.claude/

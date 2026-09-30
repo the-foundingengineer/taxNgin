@@ -1,0 +1,32 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-012
+title: "Chargeable income exactly at zero (₦0)"
+kind: compute
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests zero income. With an explicit nil declaration or zero dividend income,
+  gross, chargeable, and tax payable are all zero.
+
+given:
+  residency: resident
+  months_employed: 12
+  nil_declaration: true
+  income: []
+  declared_bases: {}
+  reliefs: []
+  credits: []
+
+expect:
+  gross_income:            0
+  total_reliefs:            0
+  chargeable_income:       0
+  tax_payable:              0
+  total_credits:            0
+  balance:                  0
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

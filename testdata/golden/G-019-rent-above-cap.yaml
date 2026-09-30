@@ -1,0 +1,40 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-019
+title: "Rent declared one naira above cap boundary (₦2,500,001)"
+kind: compute
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests rent relief calculation just above the cap boundary. 20% of ₦2,500,001 = ₦500,000.20,
+  which exceeds the ₦500,000 cap. Relief is capped at exactly ₦500,000.00.
+
+given:
+  residency: resident
+  months_employed: 12
+  income:
+    - { category: EMPLOYMENT, label: "Salary", naira: 10000000 }
+  declared_bases:
+    annual_rent_paid: 2500001
+  reliefs:
+    - { code: RENT_RELIEF, evidence: true }
+  credits: []
+
+expect:
+  gross_income:      10000000
+  reliefs:
+    RENT_RELIEF:       500000
+  total_reliefs:       500000
+  chargeable_income:  9500000
+  bands:
+    - { slice: "0 – 800,000",            amount:  800000, rate: "0%",  tax:       0 }
+    - { slice: "800,000 – 3,000,000",    amount: 2200000, rate: "15%", tax:  330000 }
+    - { slice: "3,000,000 – 9,500,000",  amount: 6500000, rate: "18%", tax: 1170000 }
+  tax_payable:        1500000
+  total_credits:            0
+  balance:            1500000
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

@@ -1,0 +1,55 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — uses synthetic test-fixture rule set (year 1), not legal content.
+
+id: G-043
+title: "Registry dispatch proof: same income, different rule sets, different tax"
+kind: compute
+year_of_assessment: 1
+jurisdiction: NG
+rule_set_version: "test-fixture"
+
+why_this_case: >
+  Proves the engine dispatches on YAML data with no "if year == X" branch in Go
+  code. The test-fixture rule set (testdata/rulesets/ng-test-fixture.yaml) sets the
+  first band rate to 500 bp (5%) instead of ng-2026's 0 bp (0%). DIVIDEND income of
+  ₦600,000 falls entirely in the first band in both rule sets.
+
+  Under ng-2026: 0% × ₦600,000 = ₦0 tax.
+  Under the test fixture: 5% × ₦600,000 = ₦30,000 tax.
+
+  The harness must load testdata/rulesets/ alongside rules/ and dispatch on
+  (jurisdiction, year_of_assessment) = ("NG", 1). If the harness mistakenly
+  loaded ng-2026 for this fixture, tax_payable would be ₦0 and the test would
+  fail — that failure is the proof of correct dispatch.
+
+  DIVIDEND category is used so the minimum-wage exemption does not fire
+  (it applies only to EMPLOYMENT income).
+
+  Calculation:
+    Gross:             ₦600,000   (60,000,000 kobo)
+    No reliefs claimed.
+    Chargeable income: ₦600,000
+    Band 1 (5% on first ₦800,000): 60,000,000 × 500 / 10,000 = 3,000,000 kobo = ₦30,000
+    Tax payable: ₦30,000
+    No credits. Balance: ₦30,000.
+
+given:
+  residency: resident
+  months_employed: 12
+  income:
+    - { category: DIVIDEND, label: "Dividend from portfolio", naira: 600000 }
+  declared_bases: {}
+  reliefs: []
+  credits: []
+
+expect:
+  gross_income:       600000
+  total_reliefs:           0
+  chargeable_income:  600000
+  bands:
+    - { slice: "0 – 800,000", amount: 600000, rate: "5%", tax: 30000 }
+  tax_payable:         30000
+  total_credits:           0
+  balance:             30000
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "Synthetic test fixture — not legal content." }

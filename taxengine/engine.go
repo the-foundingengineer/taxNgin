@@ -80,6 +80,15 @@ type TaxFacts struct {
 // recomputation when nothing material changed.
 func (f TaxFacts) Hash() (string, error) {
 	c := f
+	c.Income = append([]IncomeItem(nil), f.Income...)
+	c.Reliefs = append([]ReliefClaim(nil), f.Reliefs...)
+	c.Credits = append([]CreditClaim(nil), f.Credits...)
+	if f.DeclaredBases != nil {
+		c.DeclaredBases = make(map[string]Kobo, len(f.DeclaredBases))
+		for k, v := range f.DeclaredBases {
+			c.DeclaredBases[k] = v
+		}
+	}
 	sort.Slice(c.Income, func(i, j int) bool {
 		if c.Income[i].Category != c.Income[j].Category {
 			return c.Income[i].Category < c.Income[j].Category

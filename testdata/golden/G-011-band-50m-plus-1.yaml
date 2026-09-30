@@ -1,0 +1,39 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-011
+title: "Chargeable income one naira above fifth band top boundary (₦50,000,001)"
+kind: compute
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests entry into the top 25% marginal band at ₦50,000,001. Non-employment income (Dividend).
+  5 lower bands = ₦10,430,000 + ₦1 at 25% (₦0.25) = ₦10,430,000.25.
+
+given:
+  residency: resident
+  months_employed: 12
+  income:
+    - { category: DIVIDEND, label: "Dividend income", naira: 50000001 }
+  declared_bases: {}
+  reliefs: []
+  credits: []
+
+expect:
+  gross_income:      50000001
+  total_reliefs:            0
+  chargeable_income: 50000001
+  bands:
+    - { slice: "0 – 800,000",              amount:   800000, rate: "0%",  tax:        0 }
+    - { slice: "800,000 – 3,000,000",      amount:  2200000, rate: "15%", tax:   330000 }
+    - { slice: "3,000,000 – 12,000,000",   amount:  9000000, rate: "18%", tax:  1620000 }
+    - { slice: "12,000,000 – 25,000,000",  amount: 13000000, rate: "21%", tax:  2730000 }
+    - { slice: "25,000,000 – 50,000,000",  amount: 25000000, rate: "23%", tax:  5750000 }
+    - { slice: "Above 50,000,000",         amount:        1, rate: "25%", tax:     0.25 }
+  tax_payable:       10430000.25
+  total_credits:            0
+  balance:           10430000.25
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

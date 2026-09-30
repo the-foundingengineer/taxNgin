@@ -1,0 +1,39 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-028
+title: "Two employers, mid-year job change (summed income and credits)"
+kind: compute
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests multi-employer aggregation. Income from two sequential employers in the same
+  year of assessment is summed (₦4M + ₦6M = ₦10M gross). PAYE credits from both employers
+  are summed (₦1.25M total credits).
+
+given:
+  residency: resident
+  months_employed: 12
+  income:
+    - { category: EMPLOYMENT, label: "Employer A", naira: 4000000 }
+    - { category: EMPLOYMENT, label: "Employer B", naira: 6000000 }
+  declared_bases: {}
+  reliefs: []
+  credits:
+    - { code: PAYE_REMITTED, naira: 1250000 }
+
+expect:
+  gross_income:      10000000
+  total_reliefs:            0
+  chargeable_income: 10000000
+  bands:
+    - { slice: "0 – 800,000",             amount:  800000, rate: "0%",  tax:       0 }
+    - { slice: "800,000 – 3,000,000",     amount: 2200000, rate: "15%", tax:  330000 }
+    - { slice: "3,000,000 – 10,000,000",  amount: 7000000, rate: "18%", tax: 1260000 }
+  tax_payable:        1590000
+  total_credits:      1250000
+  balance:             340000
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

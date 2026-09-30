@@ -1,0 +1,35 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-008
+title: "Chargeable income exactly at second band top boundary (₦3,000,000)"
+kind: compute
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests the ₦3,000,000 upper boundary of the 15% band. Non-employment income (Dividend)
+  used to bypass the minimum wage exemption. ₦800,000 at 0% + ₦2,200,000 at 15% = ₦330,000.
+
+given:
+  residency: resident
+  months_employed: 12
+  income:
+    - { category: DIVIDEND, label: "Dividend income", naira: 3000000 }
+  declared_bases: {}
+  reliefs: []
+  credits: []
+
+expect:
+  gross_income:       3000000
+  total_reliefs:            0
+  chargeable_income:  3000000
+  bands:
+    - { slice: "0 – 800,000",         amount:  800000, rate: "0%",  tax:      0 }
+    - { slice: "800,000 – 3,000,000", amount: 2200000, rate: "15%", tax: 330000 }
+  tax_payable:         330000
+  total_credits:            0
+  balance:             330000
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

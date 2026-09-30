@@ -1,0 +1,36 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-023
+title: "Reliefs exceeding gross income clamped to zero chargeable income"
+kind: compute
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests restriction that total reliefs cannot exceed gross income. Gross income ₦1,000,000
+  with ₦1,200,000 pension claim restricts total reliefs to ₦1,000,000, clamping chargeable
+  income at ₦0.
+
+given:
+  residency: resident
+  months_employed: 12
+  income:
+    - { category: EMPLOYMENT, label: "Salary", naira: 1000000 }
+  declared_bases: {}
+  reliefs:
+    - { code: PENSION, naira: 1200000, evidence: true }
+  credits: []
+
+expect:
+  gross_income:       1000000
+  reliefs:
+    PENSION:          1200000
+  total_reliefs:      1000000
+  chargeable_income:        0
+  tax_payable:              0
+  total_credits:            0
+  balance:                  0
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

@@ -1,0 +1,39 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-010
+title: "Chargeable income exactly at fifth band top boundary (₦50,000,000)"
+kind: compute
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests the ₦50,000,000 upper boundary of the 23% band. Non-employment income (Dividend).
+  Walks all 5 lower bands: 800k@0% + 2.2M@15% (330k) + 9M@18% (1.62M) + 13M@21% (2.73M)
+  + 25M@23% (5.75M) = ₦10,430,000 total tax.
+
+given:
+  residency: resident
+  months_employed: 12
+  income:
+    - { category: DIVIDEND, label: "Dividend income", naira: 50000000 }
+  declared_bases: {}
+  reliefs: []
+  credits: []
+
+expect:
+  gross_income:      50000000
+  total_reliefs:            0
+  chargeable_income: 50000000
+  bands:
+    - { slice: "0 – 800,000",              amount:   800000, rate: "0%",  tax:       0 }
+    - { slice: "800,000 – 3,000,000",      amount:  2200000, rate: "15%", tax:  330000 }
+    - { slice: "3,000,000 – 12,000,000",   amount:  9000000, rate: "18%", tax: 1620000 }
+    - { slice: "12,000,000 – 25,000,000",  amount: 13000000, rate: "21%", tax: 2730000 }
+    - { slice: "25,000,000 – 50,000,000",  amount: 25000000, rate: "23%", tax: 5750000 }
+  tax_payable:       10430000
+  total_credits:            0
+  balance:           10430000
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

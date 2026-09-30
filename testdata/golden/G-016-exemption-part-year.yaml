@@ -1,0 +1,34 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-016
+title: "Part-year employment annualised below minimum wage threshold"
+kind: compute
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests part-year employment annualisation. 6 months employment with ₦300,000 earned
+  annualises to ₦600,000 (300,000 * 12 / 6), which is below ₦840,000. Exemption MINIMUM_WAGE
+  applies, clamping tax to ₦0.
+
+given:
+  residency: resident
+  months_employed: 6
+  income:
+    - { category: EMPLOYMENT, label: "Wages 6 months", naira: 300000 }
+  declared_bases: {}
+  reliefs: []
+  credits: []
+
+expect:
+  gross_income:        300000
+  total_reliefs:            0
+  chargeable_income:        0
+  tax_payable:              0
+  total_credits:            0
+  balance:                  0
+  exemption_applied:   MINIMUM_WAGE
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

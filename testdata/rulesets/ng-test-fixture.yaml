@@ -1,0 +1,135 @@
+# TEST FIXTURE ONLY — not historical tax law.
+#
+# This file exists to prove that the engine dispatches on YAML data without
+# any "if year == X" branch in Go code. Change any value freely; none of these
+# numbers represent any real year's statutory rates or thresholds.
+#
+# The single meaningful difference from ng-2026.yaml:
+#   - year_of_assessment: 1  (unambiguously synthetic)
+#   - bands[0].rate_bp: 500  (5% on the first ₦800,000, vs 0% in 2026)
+#   - exemptions[0].threshold_kobo: 42000000 (₦420,000, vs ₦840,000 in 2026)
+#
+# Effect: an income of ₦600,000 (DIVIDEND) produces ₦30,000 tax here and ₦0
+# under ng-2026, because 5% × ₦600,000 = ₦30,000. G-043 uses this fixture.
+
+jurisdiction: NG
+year_of_assessment: 1
+version: "test-fixture"
+effective_from: 2000-01-01
+effective_to: null
+status: DRAFT
+
+approved_by:
+  name: ""
+  membership_no: ""
+  approved_at: null
+  scope: "Test fixture only."
+
+source:
+  primary: "synthetic test fixture — not legal content"
+  secondary: []
+
+arithmetic:
+  unit: kobo
+  rate_unit: basis_points
+  rounding_mode: half_up
+  rounding_applied_at: final_liability
+
+bands:
+  - { upper_kobo:    80000000, rate_bp:  500, label: "First ₦800,000 (5% — fixture only)" }
+  - { upper_kobo:   300000000, rate_bp: 1500, label: "₦800,001 – ₦3,000,000" }
+  - { upper_kobo:  1200000000, rate_bp: 1800, label: "₦3,000,001 – ₦12,000,000" }
+  - { upper_kobo:  2500000000, rate_bp: 2100, label: "₦12,000,001 – ₦25,000,000" }
+  - { upper_kobo:  5000000000, rate_bp: 2300, label: "₦25,000,001 – ₦50,000,000" }
+  - { upper_kobo:        null, rate_bp: 2500, label: "Above ₦50,000,000" }
+
+reliefs:
+  - code: RENT_RELIEF
+    label: "Rent relief"
+    kind: rate_of_base
+    base: annual_rent_paid
+    rate_bp: 2000
+    cap_kobo: 50000000
+    requires_evidence: true
+    citation: "test fixture"
+  - code: PENSION
+    label: "Pension contribution (employee)"
+    kind: actual
+    cap_kobo: null
+    requires_evidence: true
+    citation: "test fixture"
+  - code: NHF
+    label: "National Housing Fund contribution"
+    kind: actual
+    cap_kobo: null
+    requires_evidence: true
+    citation: "test fixture"
+  - code: NHIS
+    label: "National Health Insurance contribution"
+    kind: actual
+    cap_kobo: null
+    requires_evidence: true
+    citation: "test fixture"
+  - code: LIFE_ASSURANCE
+    label: "Life assurance premium (self and spouse)"
+    kind: actual
+    cap_kobo: null
+    requires_evidence: true
+    citation: "test fixture"
+  - code: MEDICAL
+    label: "Medical expenses and insurance premiums"
+    kind: actual
+    cap_kobo: null
+    requires_evidence: true
+    citation: "test fixture"
+  - code: HOUSING_LOAN_INTEREST
+    label: "Interest on loan for owner-occupied residence"
+    kind: actual
+    cap_kobo: null
+    requires_evidence: true
+    citation: "test fixture"
+  - code: BUSINESS_EXPENSES
+    label: "Allowable business expenses"
+    kind: actual
+    cap_kobo: null
+    requires_evidence: true
+    citation: "test fixture"
+
+exemptions:
+  - code: MINIMUM_WAGE
+    label: "Minimum wage earner (fixture threshold)"
+    kind: full_exemption_if_at_or_below
+    subject: employment_income_annualised
+    threshold_kobo: 42000000    # ₦420,000 — lower than 2026's ₦840,000
+    applies_when_only_income_is: [EMPLOYMENT]
+    citation: "test fixture only"
+    note: "Synthetic threshold — not legal content."
+
+credits:
+  - code: PAYE_REMITTED
+    label: "PAYE already deducted and remitted by employer"
+    order: 1
+  - code: FOREIGN_TAX_CREDIT
+    label: "Unilateral relief for foreign tax paid"
+    order: 2
+    citation: "test fixture"
+  - code: WHT_SUFFERED
+    label: "Withholding tax suffered"
+    order: 3
+
+penalties:
+  filing_deadline: 2000-03-31
+  late_filing:
+    first_month_kobo: 10000000
+    per_subsequent_month_kobo: 5000000
+    citation: "test fixture"
+  late_payment:
+    surcharge_bp: 1000
+    interest_basis: CBN_MPR
+    citation: "test fixture"
+  failure_to_register:
+    initial_kobo: 5000000
+    per_month_kobo: 2500000
+    citation: "test fixture"
+  objection_window_days: 30
+  citation_objection: "test fixture"

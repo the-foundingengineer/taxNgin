@@ -52,6 +52,12 @@ const (
 
 	EvAmendmentOpened   EventKind = "AmendmentOpened"
 	EvReturnAbandoned   EventKind = "ReturnAbandoned"
+
+	// EvAccommodationDeclared records the taxpayer's accommodation situation.
+	// Required to populate Page 2 of the LIRS eTax portal pack. Does NOT mark
+	// the assessment stale — accommodation is a portal compliance requirement,
+	// not a change to taxable facts.
+	EvAccommodationDeclared EventKind = "AccommodationDeclared"
 )
 
 type ActorKind string
@@ -121,6 +127,13 @@ type Projection struct {
 	Warnings       []string
 	AcknowledgedWarnings map[string]bool
 
+	// Accommodation fields — populated by EvAccommodationDeclared.
+	// Required to generate the portal pack's Page 2.
+	AccommodationType string
+	OwnershipType     string
+	LandlordName      string
+	LandlordAddress   string
+
 	SignedAt           *time.Time
 	PackIssuedAt       *time.Time
 	AttestedAt         *time.Time
@@ -132,6 +145,8 @@ type Projection struct {
 	// DeclaredByTaxpayer is false if any income line entered the return without
 	// a TAXPAYER-actor event behind it. Signing is blocked when it is false.
 	DeclaredByTaxpayer bool
+
+	SeenIdempotencyKeys map[string]bool
 }
 
 type IncomeLine struct {
@@ -162,11 +177,16 @@ type AssessmentSnapshot struct {
 	FactsHash            string
 	RuleSetVersion       string
 	RuleSetDigest        string
+	RuleSetPublished     bool
 	ChargeableIncomeKobo int64
 	TaxPayableKobo       int64
 	TotalCreditsKobo     int64
 	BalanceKobo          int64
 	ComputedAt           time.Time
+	// Trace stores the serialised []taxengine.Step that explains this assessment.
+	// Stored as raw JSON so internal/returns stays stdlib-only (taxengine import
+	// would break the isolation invariant). The pack generator deserialises it.
+	Trace json.RawMessage `json:",omitempty"`
 }
 
 // Fold applies one event. It is the only place a Projection changes.
@@ -181,6 +201,16 @@ func (p *Projection) Fold(e Event) error {
 	if e.Seq != p.Version+1 {
 		return fmt.Errorf("returns: out-of-order event: got seq %d, expected %d", e.Seq, p.Version+1)
 	}
+
+	if e.IdempotencyKey != "" {
+		if p.SeenIdempotencyKeys != nil && p.SeenIdempotencyKeys[e.IdempotencyKey] {
+			// Idempotency guarantee: already processed this key, ignore this event structurally
+			// but advance the version to keep sequential integrity if it was recorded.
+			p.Version = e.Seq
+			return nil
+		}
+	}
+
 	p.Version = e.Seq
 
 	switch e.Kind {
@@ -206,6 +236,7 @@ func (p *Projection) Fold(e Event) error {
 		p.Bases = map[string]int64{}
 		p.ProposedPayroll = map[string]PayrollProposal{}
 		p.AcknowledgedWarnings = map[string]bool{}
+		p.SeenIdempotencyKeys = map[string]bool{}
 		p.DeclaredByTaxpayer = true // vacuously true until income arrives
 
 	case EvIncomeDeclared, EvIncomeRevised:
@@ -309,6 +340,7 @@ func (p *Projection) Fold(e Event) error {
 		}
 		p.Assessment = &v
 		p.RuleSetVersion = v.RuleSetVersion
+		p.RuleSetPublished = v.RuleSetPublished
 		p.AssessmentStale = false
 
 	case EvValidationRun:
@@ -386,6 +418,25 @@ func (p *Projection) Fold(e Event) error {
 	case EvReturnCleared:
 		p.State = StateCleared
 
+	case EvAccommodationDeclared:
+		var v struct {
+			Type            string `json:"type"`
+			OwnershipType   string `json:"ownership_type"`
+			LandlordName    string `json:"landlord_name"`
+			LandlordAddress string `json:"landlord_address"`
+		}
+		if err := json.Unmarshal(e.Payload, &v); err != nil {
+			return err
+		}
+		p.AccommodationType = v.Type
+		p.OwnershipType = v.OwnershipType
+		p.LandlordName = v.LandlordName
+		p.LandlordAddress = v.LandlordAddress
+		// Deliberately does NOT call markStale(). Accommodation is a portal
+		// compliance requirement (Page 2 of the eTax pack), not a change to
+		// taxable facts. The engine computes tax from income, reliefs, and bases
+		// — accommodation type is none of those.
+
 	case EvAmendmentOpened:
 		p.State = StateSuperseded
 
@@ -395,6 +446,14 @@ func (p *Projection) Fold(e Event) error {
 	default:
 		// Rule 1. Unknown kinds are tolerated, not fatal.
 	}
+
+	if e.IdempotencyKey != "" {
+		if p.SeenIdempotencyKeys == nil {
+			p.SeenIdempotencyKeys = map[string]bool{}
+		}
+		p.SeenIdempotencyKeys[e.IdempotencyKey] = true
+	}
+
 	return nil
 }
 

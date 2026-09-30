@@ -1,0 +1,57 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-022
+title: "All reliefs defined in rule set claimed simultaneously"
+kind: compute
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests interaction of all 8 reliefs defined in ng-2026.yaml claimed at once:
+  RENT_RELIEF (capped at 500k), PENSION, NHF, NHIS, LIFE_ASSURANCE, MEDICAL,
+  HOUSING_LOAN_INTEREST, and BUSINESS_EXPENSES.
+
+given:
+  residency: resident
+  months_employed: 12
+  income:
+    - { category: EMPLOYMENT, label: "Salary", naira: 15000000 }
+    - { category: BUSINESS,   label: "Consulting income", naira: 5000000 }
+  declared_bases:
+    annual_rent_paid: 3000000
+  reliefs:
+    - { code: RENT_RELIEF, evidence: true }
+    - { code: PENSION,               naira: 1200000, evidence: true }
+    - { code: NHF,                   naira:  300000, evidence: true }
+    - { code: NHIS,                  naira:  150000, evidence: true }
+    - { code: LIFE_ASSURANCE,        naira:  200000, evidence: true }
+    - { code: MEDICAL,               naira:  100000, evidence: true }
+    - { code: HOUSING_LOAN_INTEREST, naira:  400000, evidence: true }
+    - { code: BUSINESS_EXPENSES,     naira: 1000000, evidence: true }
+  credits: []
+
+expect:
+  gross_income:      20000000
+  reliefs:
+    RENT_RELIEF:           500000
+    PENSION:              1200000
+    NHF:                   300000
+    NHIS:                  150000
+    LIFE_ASSURANCE:        200000
+    MEDICAL:               100000
+    HOUSING_LOAN_INTEREST: 400000
+    BUSINESS_EXPENSES:    1000000
+  total_reliefs:      3850000
+  chargeable_income: 16150000
+  bands:
+    - { slice: "0 – 800,000",              amount:  800000, rate: "0%",  tax:       0 }
+    - { slice: "800,000 – 3,000,000",      amount: 2200000, rate: "15%", tax:  330000 }
+    - { slice: "3,000,000 – 12,000,000",   amount: 9000000, rate: "18%", tax: 1620000 }
+    - { slice: "12,000,000 – 25,000,000",  amount: 4150000, rate: "21%", tax:  871500 }
+  tax_payable:        2821500
+  total_credits:            0
+  balance:            2821500
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

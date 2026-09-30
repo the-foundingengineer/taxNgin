@@ -1,0 +1,36 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-009
+title: "Chargeable income one naira above second band top boundary (₦3,000,001)"
+kind: compute
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests entry into the 18% band at ₦3,000,001. Non-employment income (Dividend).
+  ₦800,000 at 0% + ₦2,200,000 at 15% (₦330,000) + ₦1 at 18% (₦0.18) = ₦330,000.18.
+
+given:
+  residency: resident
+  months_employed: 12
+  income:
+    - { category: DIVIDEND, label: "Dividend income", naira: 3000001 }
+  declared_bases: {}
+  reliefs: []
+  credits: []
+
+expect:
+  gross_income:       3000001
+  total_reliefs:            0
+  chargeable_income:  3000001
+  bands:
+    - { slice: "0 – 800,000",             amount:  800000, rate: "0%",  tax:      0 }
+    - { slice: "800,000 – 3,000,000",     amount: 2200000, rate: "15%", tax: 330000 }
+    - { slice: "3,000,000 – 12,000,000",  amount:       1, rate: "18%", tax:   0.18 }
+  tax_payable:         330000.18
+  total_credits:            0
+  balance:             330000.18
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

@@ -1,0 +1,265 @@
+# PORTAL MAP — Lagos State Internal Revenue Service, eTax
+#
+# This file is the difference between "here is a nice PDF of your return" and
+# "here is exactly what to type, in the order the portal asks for it."
+#
+# Under Shape A the taxpayer transcribes their return into the state portal by
+# hand. Every field they have to hunt for is a place they mistype or give up.
+# So the pack is generated FROM this map, in this order, using the portal's own
+# label text — not our internal field names.
+#
+# Portals change without notice. This is versioned data for the same reason the
+# rule set is: when LIRS reorders a page, you publish a new map, you do not
+# deploy code, and packs generated last April remain reproducible.
+#
+# STATUS: PARTIALLY VERIFIED against published 2026 filing walkthroughs
+# (TechCabal, UNILAG official guide, BHLUEMOUNTAIN, NRS Portal Guide, LIRS docs).
+# Items marked UNVERIFIED below were not found in any public source and must be
+# confirmed by walking a real return through the live portal before shipping.
+# Remaining ambiguities are flagged inline. Budget 2–3 hours with a real account.
+
+portal:
+  code: NG-LA-ETAX
+  jurisdiction: NG-LA
+  authority: "Lagos State Internal Revenue Service"
+  url: "https://etax.lirs.net"
+  map_version: "0.4.0-draft"
+  observed_season: 2026
+  status: DRAFT
+  verification_sources:
+    - "https://techcabal.com/2026/04/02/how-to-file-tax-on-the-lirs-etax-portal/"
+    - "https://unilag.edu.ng/steps-to-file-individual-tax-returns-and-generate-tax-clearance-certificate-tcc-online-for-the-2026-assessment-year/"
+    - "https://bhluemountain.com/2026/04/02/how-to-file-tax-on-the-lirs-etax-portal-a-step-by-step-guide-for-lagos-residents/"
+    - "https://etax.readme.io/docs/login-as-individual-taxpayer"
+    - "https://lirs.gov.ng/faq"
+
+# ---------------------------------------------------------------------------
+# Preconditions. Checked BEFORE we generate a pack, because discovering a
+# missing passport photograph after transcribing thirty fields is the worst
+# possible moment to discover it.
+# ---------------------------------------------------------------------------
+preconditions:
+  - id: PC01
+    label: "Payer ID"
+    detail: >
+      LIRS issues individuals a Payer ID prefixed 'N-'. Distinct from the
+      13-digit national Tax ID. If the user does not have one, they register at
+      etax.lirs.net using BVN or NIN before anything else.
+    blocks_pack: true
+  - id: PC02
+    label: "Profile complete"
+    detail: "Address, phone, email must be present on the eTax profile."
+    blocks_pack: false
+  - id: PC03
+    label: "Passport photograph uploaded"
+    detail: "Required to generate a Tax Clearance Certificate later. Not required to file."
+    blocks_pack: false
+    blocks_tcc: true
+  - id: PC04
+    label: "Employer-filed returns checked"
+    detail: >
+      RETURNS → EMPLOYER FILED RETURNS. The user should confirm their employer
+      has filed for this year. If a year is missing they must contact HR, and no
+      amount of correct filing on their side will fix it.
+    blocks_pack: false
+    generates_warning: W102
+
+# ---------------------------------------------------------------------------
+# Navigation. Reproduced so the pack can tell the user where they are, and so
+# our own screenshots and help content stay in step with the portal.
+# ---------------------------------------------------------------------------
+navigation:
+  - step: "Log in"
+    detail: "Select Login Type → Taxpayer. Enter Payer ID (with the 'N-' prefix) and password."
+  - step: "Open returns"
+    detail: >
+      RETURNS (left menu) → MY TAX RETURNS → blue FILE RETURNS HERE button
+      in the top-right of the My Tax Returns page. VERIFIED.
+  - step: "Select assessment year"
+    detail: >
+      The portal labels this field "Assessment Year" consistently. For income
+      earned in 2025, select assessment year 2026. VERIFIED — earlier concern
+      about labelling conflict was not supported by 2026 sources.
+    field: assessment_year
+
+# ---------------------------------------------------------------------------
+# PAGE 1 — Statement of Income
+# Order and labels as the portal presents them.
+# ---------------------------------------------------------------------------
+pages:
+  - id: P1
+    title: "Statement of Income"
+    fields:
+      - portal_label: "Employer Name"
+        source: income.EMPLOYMENT[].source_name
+        repeatable: true
+        note: >
+          VERIFIED. LIRS FAQ confirms: "The platform allows employees with multiple
+          employers to add rows/employers when filing annual returns for comprehensive
+          income reporting." The Employer Filed Returns section (left menu) shows
+          what each employer reported via PAYE — the taxpayer must still enter or
+          confirm figures on the Statement of Income form. One row per employer;
+          use Add Row for mid-year job changes.
+      - portal_label: "Salary"
+        source: income.EMPLOYMENT[].amount
+        format: naira_2dp
+      - portal_label: "Commission"
+        source: income.COMMISSION
+        format: naira_2dp
+      - portal_label: "Trade/Business Income"
+        source: income.BUSINESS + income.PROFESSIONAL
+        format: naira_2dp
+        note: >
+          Our model separates BUSINESS from PROFESSIONAL; the portal has one
+          field. Summed here. The pack shows the components underneath so the
+          user can check our arithmetic.
+      - portal_label: "Allowances"
+        source: income.ALLOWANCES
+        format: naira_2dp
+      - portal_label: "Pension Income"
+        source: income.PENSION_RECEIVED
+        format: naira_2dp
+        note: "Pension RECEIVED, not pension CONTRIBUTED. Contributions go on Page 3."
+      - portal_label: "Interest"
+        source: income.INTEREST
+        format: naira_2dp
+      - portal_label: "Rent Received"
+        source: income.RENT_RECEIVED
+        format: naira_2dp
+        note: "Rent you receive as a landlord. Rent you PAY goes on Page 2."
+      - portal_label: "Dividends"
+        source: income.DIVIDEND
+        format: naira_2dp
+      - portal_label: "Foreign Income"
+        source: income.FOREIGN
+        format: naira_2dp
+    unmapped_income:
+      note: >
+        NTA 2025 s.4 taxes digital and virtual asset gains and capital gains at
+        progressive PIT rates. The NRS issued Information Circular No. 2026/21
+        (July 31 2026) requiring individuals to "calculate and declare [gains] in
+        their annual tax return" — but specifies no field. As of the 2026 filing
+        season NO dedicated field for these categories exists on the LIRS eTax
+        Statement of Income page. The portal has not caught up with the law.
+
+        Working guidance from practitioners (unendorsed by LIRS):
+          - Active crypto/digital asset trading → Trade/Business Income (same field
+            used for business income, treated as trade receipts).
+          - Investment gains (buy-and-hold disposals) → field location unknown;
+            PwC (August 2026) flags this as an open compliance question.
+
+        Pack behaviour: flag these categories to the user with the exact NRS
+        circular reference, advise them to contact LIRS or a tax practitioner
+        before filing, and do NOT fold them silently into another field.
+        Monitor etax.lirs.net for a new field in the 2027 assessment year cycle.
+      categories: [DIGITAL_ASSET_GAIN, CAPITAL_GAIN, OTHER]
+      nrs_reference: "Information Circular No. 2026/21, July 31 2026"
+      pwc_flag: "https://nairametrics.com/2026/08/15/pwc-flags-tax-traps-in-nigerias-new-virtual-assets-guidelines/"
+    next: "NEXT"
+
+  - id: P2
+    title: "Mandatory Disclosure of Accommodation"
+    note: >
+      This page exists because rent relief is granted only where the taxpayer
+      accurately declares the rent actually paid. Getting Page 2 wrong is how a
+      rent relief claim gets denied.
+    fields:
+      - portal_label: "Residential Address"
+        source: profile.residential_address
+      - portal_label: "Accommodation Type"
+        source: accommodation.type
+        enum: [Rent, Self-owned]
+      - portal_label: "Ownership Type"
+        source: accommodation.ownership
+        enum: [Tenant, Owner]
+        note: "VERIFIED. Portal uses 'Tenant' / 'Owner' designation."
+      - portal_label: "Annual Rent Paid"
+        source: declared_bases.annual_rent_paid
+        format: naira_2dp
+        conditional_on: "accommodation.type == Rent"
+        note: >
+          VERIFIED. UNILAG guide notes: enter '0.00' if you own your home and
+          are not paying rent — do not leave the field blank.
+      - portal_label: "Landlord Details"
+        source: accommodation.landlord
+        conditional_on: "accommodation.type == Rent"
+        note: "VERIFIED. Field is present and required when accommodation.type == Rent."
+    next: "NEXT"
+
+  - id: P3
+    title: "Other Disclosure for Reliefs"
+    fields:
+      - portal_label: "Life Assurance Premiums"
+        source: reliefs.LIFE_ASSURANCE
+        format: naira_2dp
+        upload: "Premium receipts"
+      - portal_label: "NHF Contributions"
+        source: reliefs.NHF
+        format: naira_2dp
+        upload: "Evidence of NHF contribution"
+      - portal_label: "Gratuities Received"
+        source: income.GRATUITY
+        format: naira_2dp
+        note: "Gratuity is taxable under the NTA 2025. It appears on the reliefs page but it is income."
+      - portal_label: "NHIS Contributions"
+        source: reliefs.NHIS
+        format: naira_2dp
+        upload: "NHIS contribution records"
+      - portal_label: "Pension Contributions"
+        source: reliefs.PENSION
+        format: naira_2dp
+        upload: "Evidence of pension contribution"
+    submit: "FILE RETURNS"
+
+# ---------------------------------------------------------------------------
+# Documents to have open before starting. The pack front page lists these.
+# ---------------------------------------------------------------------------
+uploads:
+  - { label: "Payslips",                     required_when: "income.EMPLOYMENT > 0" }
+  - { label: "Bank statements",              required_when: "income.BUSINESS > 0 or income.PROFESSIONAL > 0" }
+  - { label: "Financial statements",         required_when: "income.BUSINESS > 0" }
+  - { label: "Rent receipts",                required_when: "reliefs.RENT_RELIEF claimed" }
+  - { label: "Evidence of pension contributions", required_when: "reliefs.PENSION claimed" }
+  - { label: "Evidence of NHF contributions",     required_when: "reliefs.NHF claimed" }
+  - { label: "NHIS contribution records",         required_when: "reliefs.NHIS claimed" }
+  - { label: "Life insurance premium receipts",   required_when: "reliefs.LIFE_ASSURANCE claimed" }
+  - { label: "Recent passport photograph",        required_when: "always", note: "Profile and TCC" }
+
+# ---------------------------------------------------------------------------
+# After submission. This is where Shape A loses visibility, so the pack has to
+# tell the user what happens next and what to bring back to us.
+# ---------------------------------------------------------------------------
+post_submission:
+  - step: "Request approval"
+    detail: "Use the Chat Box at the bottom right of the portal to request approval of the submission."
+  - step: "LIRS raises an assessment"
+    detail: "The authority reviews and issues an assessment. This is not instant."
+  - step: "Pay any balance"
+    detail: >
+      Through the portal's in-app payment channels, or generate a Bill Reference
+      and pay at a Lagos State designated revenue-collecting bank.
+  - step: "Bring back the acknowledgement"
+    detail: >
+      Upload the acknowledgement receipt to us. This is how the return moves from
+      SELF_ATTESTED to ACK_UPLOADED and how we can track TCC readiness. Without
+      it we are guessing.
+    our_action: "ACK_UPLOADED"
+
+# ---------------------------------------------------------------------------
+# Tax Clearance Certificate. Six conditions, all of which we can track.
+# This drives the TCCReadiness projection.
+# ---------------------------------------------------------------------------
+tcc:
+  route: >
+    Log in → green status bar at the bottom of the dashboard → DOWNLOAD TCC
+    icon. The green bar also shows MESSAGE and PAYMENT sections. VERIFIED —
+    multiple 2026 sources confirm the green bar and DOWNLOAD TCC placement.
+  verification: "https://etax.lirs.net/tccverification/ — certificate number or QR code"
+  statutory_timeline: "Two weeks from date of demand; the digital system often issues same-day."
+  conditions:
+    - { id: T1, label: "Annual returns filed for the last three years, both employer-filed and individual-filed" }
+    - { id: T2, label: "Recent passport photograph uploaded to the eTax profile" }
+    - { id: T3, label: "Full address updated" }
+    - { id: T4, label: "Tax assessments received for the last three years" }
+    - { id: T5, label: "All taxes due fully paid" }
+    - { id: T6, label: "Profile complete" }

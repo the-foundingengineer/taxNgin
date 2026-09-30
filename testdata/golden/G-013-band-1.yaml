@@ -1,0 +1,34 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-013
+title: "Chargeable income exactly at one naira (₦1)"
+kind: compute
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests ₦1 of income. Non-employment income (Dividend ₦1). Chargeable ₦1 sits
+  in the 0% band, producing ₦0 tax.
+
+given:
+  residency: resident
+  months_employed: 12
+  income:
+    - { category: DIVIDEND, label: "Dividend income", naira: 1 }
+  declared_bases: {}
+  reliefs: []
+  credits: []
+
+expect:
+  gross_income:            1
+  total_reliefs:            0
+  chargeable_income:       1
+  bands:
+    - { slice: "0 – 800,000", amount: 1, rate: "0%", tax: 0 }
+  tax_payable:              0
+  total_credits:            0
+  balance:                  0
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

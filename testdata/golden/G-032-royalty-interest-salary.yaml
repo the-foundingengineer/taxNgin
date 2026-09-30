@@ -1,0 +1,38 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-032
+title: "Royalty, interest, and employment salary income"
+kind: compute
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests multi-source aggregation across employment, royalty, and interest categories.
+  Gross ₦6,500,000 (₦5M salary + ₦1M royalty + ₦500k interest).
+
+given:
+  residency: resident
+  months_employed: 12
+  income:
+    - { category: EMPLOYMENT, label: "Salary", naira: 5000000 }
+    - { category: ROYALTY,    label: "Book royalty", naira: 1000000 }
+    - { category: INTEREST,   label: "Deposit interest", naira: 500000 }
+  declared_bases: {}
+  reliefs: []
+  credits: []
+
+expect:
+  gross_income:       6500000
+  total_reliefs:            0
+  chargeable_income:  6500000
+  bands:
+    - { slice: "0 – 800,000",            amount:  800000, rate: "0%",  tax:      0 }
+    - { slice: "800,000 – 3,000,000",    amount: 2200000, rate: "15%", tax: 330000 }
+    - { slice: "3,000,000 – 6,500,000",  amount: 3500000, rate: "18%", tax: 630000 }
+  tax_payable:         960000
+  total_credits:            0
+  balance:             960000
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

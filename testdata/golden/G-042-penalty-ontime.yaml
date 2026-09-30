@@ -1,0 +1,26 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-042
+title: "On-time filing with zero penalty"
+kind: penalty
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests filing on the exact deadline date (31 March). Default is 0 months, resulting
+  in ₦0 penalty.
+
+given:
+  filed_on: 2027-03-31T00:00:00Z
+  as_of:    2027-03-31T00:00:00Z
+
+expect:
+  months_in_default:      0
+  late_filing:            0
+  late_payment_surcharge: 0
+  late_payment_interest:  0
+  penalty_total:          0
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

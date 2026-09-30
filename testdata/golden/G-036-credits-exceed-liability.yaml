@@ -1,0 +1,39 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-036
+title: "Multiple credits exceeding tax liability"
+kind: compute
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests multiple credit claims (PAYE remitted + WHT suffered) exceeding liability.
+  Tax payable ₦690,000 against ₦990,000 total credits (₦690k PAYE + ₦300k WHT)
+  produces balance ₦-300,000 (refund due).
+
+given:
+  residency: resident
+  months_employed: 12
+  income:
+    - { category: EMPLOYMENT, label: "Salary", naira: 5000000 }
+  declared_bases: {}
+  reliefs: []
+  credits:
+    - { code: PAYE_REMITTED, naira: 690000 }
+    - { code: WHT_SUFFERED,  naira: 300000 }
+
+expect:
+  gross_income:       5000000
+  total_reliefs:            0
+  chargeable_income:  5000000
+  bands:
+    - { slice: "0 – 800,000",            amount:  800000, rate: "0%",  tax:      0 }
+    - { slice: "800,000 – 3,000,000",    amount: 2200000, rate: "15%", tax: 330000 }
+    - { slice: "3,000,000 – 5,000,000",  amount: 2000000, rate: "18%", tax: 360000 }
+  tax_payable:         690000
+  total_credits:       990000
+  balance:            -300000
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

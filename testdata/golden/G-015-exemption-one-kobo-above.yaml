@@ -1,0 +1,36 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-015
+title: "Employment income one kobo above minimum wage threshold (₦840,000.01)"
+kind: compute
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests minimum wage exemption edge. ₦840,000.01 exceeds threshold by ₦0.01, so exemption
+  does NOT apply. Chargeable income ₦840,000.01 results in ₦40,000.01 taxable at 15% = ₦6,000.00.
+
+given:
+  residency: resident
+  months_employed: 12
+  income:
+    - { category: EMPLOYMENT, label: "Wages", naira: 840000.01 }
+  declared_bases: {}
+  reliefs: []
+  credits: []
+
+expect:
+  gross_income:        840000.01
+  total_reliefs:            0
+  chargeable_income:   840000.01
+  bands:
+    - { slice: "0 – 800,000",         amount: 800000,    rate: "0%",  tax:    0 }
+    - { slice: "800,000 – 3,000,000", amount:  40000.01, rate: "15%", tax: 6000 }
+  tax_payable:           6000
+  total_credits:            0
+  balance:               6000
+  exemption_applied:     null
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

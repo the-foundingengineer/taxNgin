@@ -1,0 +1,27 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-041
+title: "Filing penalty on late-filed nil return (₦0 tax owed)"
+kind: penalty
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests NTAA s.101 filing penalty on a nil return (₦0 unpaid tax). Penalty applies
+  because it is for failure to file, not failure to pay. Filed 15 April (1 month default = ₦100,000).
+
+given:
+  filed_on:     2027-04-15T00:00:00Z
+  as_of:        2027-04-15T00:00:00Z
+  unpaid_naira: 0
+
+expect:
+  months_in_default:      1
+  late_filing:            100000
+  late_payment_surcharge: 0
+  late_payment_interest:  0
+  penalty_total:          100000
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

@@ -1,0 +1,24 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-037
+title: "Filing penalty for return filed 1 day late (1 month default)"
+kind: penalty
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests NTAA s.101 filing penalty on the day after deadline (1 April vs 31 March deadline).
+  Partial month counts as 1 commenced month default, attracting ₦100,000 penalty.
+
+given:
+  filed_on: 2027-04-01T00:00:00Z
+  as_of:    2027-04-01T00:00:00Z
+
+expect:
+  months_in_default: 1
+  late_filing: 100000
+  penalty_total: 100000
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

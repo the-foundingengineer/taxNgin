@@ -1,0 +1,40 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-024
+title: "Pension claimed with no employment income"
+kind: compute
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests pension claim against non-employment income. The engine currently has no income
+  category gate for pension claims, so ₦400,000 pension contribution is deducted from
+  ₦5,000,000 business income. Recorded as VERIFY for practitioner sign-off.
+
+given:
+  residency: resident
+  months_employed: 12
+  income:
+    - { category: BUSINESS, label: "Trading profit", naira: 5000000 }
+  declared_bases: {}
+  reliefs:
+    - { code: PENSION, naira: 400000, evidence: true }
+  credits: []
+
+expect:
+  gross_income:       5000000
+  reliefs:
+    PENSION:           400000
+  total_reliefs:       400000
+  chargeable_income:  4600000
+  bands:
+    - { slice: "0 – 800,000",            amount:  800000, rate: "0%",  tax:      0 }
+    - { slice: "800,000 – 3,000,000",    amount: 2200000, rate: "15%", tax: 330000 }
+    - { slice: "3,000,000 – 4,600,000",  amount: 1600000, rate: "18%", tax: 288000 }
+  tax_payable:         618000
+  total_credits:            0
+  balance:             618000
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

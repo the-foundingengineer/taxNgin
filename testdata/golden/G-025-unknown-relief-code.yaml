@@ -1,0 +1,28 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-025
+title: "Relief code absent from loaded rule set"
+kind: error
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests error handling when a relief code in tax facts is absent from the rule set.
+  Compute must fail with an error naming the missing relief code.
+
+given:
+  residency: resident
+  months_employed: 12
+  income:
+    - { category: EMPLOYMENT, label: "Salary", naira: 5000000 }
+  declared_bases: {}
+  reliefs:
+    - { code: INVALID_RELIEF_CODE, naira: 100000, evidence: true }
+  credits: []
+
+expect:
+  error: "is not defined in rule set"
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

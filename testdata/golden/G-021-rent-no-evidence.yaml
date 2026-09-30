@@ -1,0 +1,30 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-021
+title: "Rent relief claimed without uploaded evidence"
+kind: validate
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests validation code W101. Rent relief is claimed but has_evidence is false.
+  Compute engine grants the relief, but validation flags warning W101 to stop filing.
+
+given:
+  residency: resident
+  months_employed: 12
+  income:
+    - { category: EMPLOYMENT, label: "Salary", naira: 9000000 }
+  declared_bases:
+    annual_rent_paid: 3000000
+  reliefs:
+    - { code: RENT_RELIEF, evidence: false }
+  credits: []
+
+expect:
+  issues:
+    - { code: "W101", severity: "warn" }
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

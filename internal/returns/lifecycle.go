@@ -115,6 +115,10 @@ var guards = map[Transition]Guard{
 		return nil
 	},
 	TrSign: func(r *Projection) error {
+		if len(r.BlockingErrors) > 0 {
+			return fmt.Errorf("returns: %d blocking validation errors remain (first: %s)",
+				len(r.BlockingErrors), r.BlockingErrors[0])
+		}
 		if r.Assessment == nil {
 			return fmt.Errorf("returns: cannot sign a return with no computed assessment")
 		}
@@ -124,15 +128,19 @@ var guards = map[Transition]Guard{
 		if !r.RuleSetPublished {
 			return fmt.Errorf("returns: cannot sign against an unpublished rule set")
 		}
+		if !r.DeclaredByTaxpayer {
+			return fmt.Errorf("returns: cannot sign; not all income was declared by the taxpayer actor")
+		}
 		return nil
 	},
 	TrIssuePack: func(r *Projection) error {
 		if r.SignedAt == nil {
 			return fmt.Errorf("returns: cannot issue a pack for an unsigned return")
 		}
-		if r.PortalMapVersion == "" {
-			return fmt.Errorf("returns: no portal map loaded for jurisdiction %s", r.Jurisdiction)
-		}
+		// Bug fix: Removed PortalMapVersion check here. The portal map version
+		// is injected by the command handler into the EvPackIssued event. It
+		// cannot be checked in the transition guard, which runs on the pre-event
+		// projection state where it is inherently empty.
 		return nil
 	},
 	TrAttest: func(r *Projection) error {

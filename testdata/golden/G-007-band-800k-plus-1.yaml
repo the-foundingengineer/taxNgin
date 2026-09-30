@@ -1,0 +1,36 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-007
+title: "Chargeable income one naira above first band top boundary (₦800,001)"
+kind: compute
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests the ₦800,001 entry into the 15% band. Dividend category used so the minimum-wage
+  exemption does not fire. Chargeable ₦800,001 has ₦800,000 in 0% band and ₦1 in 15% band,
+  producing ₦0.15 tax.
+
+given:
+  residency: resident
+  months_employed: 12
+  income:
+    - { category: DIVIDEND, label: "Dividend income", naira: 800001 }
+  declared_bases: {}
+  reliefs: []
+  credits: []
+
+expect:
+  gross_income:        800001
+  total_reliefs:            0
+  chargeable_income:   800001
+  bands:
+    - { slice: "0 – 800,000",         amount: 800000, rate: "0%",  tax: 0 }
+    - { slice: "800,000 – 3,000,000", amount:      1, rate: "15%", tax: 0.15 }
+  tax_payable:           0.15
+  total_credits:            0
+  balance:               0.15
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

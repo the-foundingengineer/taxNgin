@@ -1,0 +1,24 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-039
+title: "Filing penalty for return filed 6 months late"
+kind: penalty
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests NTAA s.101 filing penalty after 6 months of default (30 September).
+  6 months default attracts ₦100,000 first month + 5 × ₦50,000 subsequent months = ₦350,000.
+
+given:
+  filed_on: 2027-09-30T00:00:00Z
+  as_of:    2027-09-30T00:00:00Z
+
+expect:
+  months_in_default: 6
+  late_filing: 350000
+  penalty_total: 350000
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

@@ -1,0 +1,78 @@
+ The blank page is fixed. Two changes:
+  1. Onboarding schema is now public — it's static data, no reason to auth-gate it
+  2. Any 401 anywhere now clears the stale token and redirects to /login instead of hanging  
+
+  ---
+  To get a real user to real value — in order of what blocks you:
+
+  ---
+  Tier 1 — App is broken without these
+
+  1. Database. Every store (AccountStore, EventStore, SessionStore, RecoveryStore,
+  BillingStore) is in-memory. A server restart loses every account, every return, every      
+  session. This is the single biggest blocker. The interfaces are already cleanly defined in 
+  store.go — you need PostgreSQL implementations of those 5 interfaces. That's the whole job;
+  the domain code doesn't change at all.
+
+  2. A real HMAC_KEY. Generate once with openssl rand -hex 32, store it as a deployment      
+  secret (not in the repo). The NIN HMAC is only as trustworthy as this key — if it changes, 
+  all stored NIN lookups break and users can't log in.
+
+  3. HTTPS. You cannot ask a Nigerian taxpayer to submit their NIN and income details over   
+  plain HTTP. Put the Go binary behind Caddy or Nginx with a Let's Encrypt cert. Caddy does  
+  this in about 5 lines of config.
+
+  ---
+  Tier 2 — Users can't complete the core flow without these
+
+  4. NIN/BVN verification. Right now the auth code hashes whatever the user types — it       
+  doesn't check if the NIN is real. For a tax product, fake NINs are a liability and
+  compliance risk. You need a KYC provider: Smile Identity, Dojah, or Prembly all have       
+  Nigerian NIN/BVN verification APIs. This is a few hundred naira per verification at scale. 
+
+  5. Payments. Both gateways are fully implemented. Add these Railway variables when ready:
+
+     Remita — LIRS tax payments (add after KYC approval at remita.net):
+       REMITA_MERCHANT_ID      your Remita merchant ID
+       REMITA_SERVICE_TYPE_ID  the service type ID Remita assigns to your product
+       REMITA_API_KEY          your Remita API key
+       REMITA_ENV              "demo" for sandbox, "live" for production
+
+     Paystack — service subscription fees (already set):
+       PAYSTACK_PUBLIC_KEY     ✓ set
+       PAYSTACK_SECRET_KEY     ✓ set
+
+     Until REMITA_MERCHANT_ID is set the /v1/payment/remita/init endpoint returns
+     503, so users see "gateway not configured" instead of crashing.
+
+  6. WhatsApp notifications. The internal/notify package already models this. You need Meta  
+  Business API approval (apply via business.whatsapp.com — takes 1–4 weeks, apply now). This 
+  is not optional for Nigeria: email open rates are low, WhatsApp messages get read.
+
+  ---
+  Tier 3 — Must exist before March 31 filing deadline
+
+  7. Portal map walk-through. One remaining item needs a real logged-in session: confirm the 
+  exact multi-employer UI behaviour (the LIRS FAQ says it's supported but no guide shows it).
+  Budget half a day with a real LIRS account.
+
+  8. Rate limiting. The HTTP server has no rate limiting. At filing season you'll get        
+  hammered. Add it at the Nginx/Caddy level — 10 req/s per IP is a reasonable start.
+
+  9. Load test. The April spike runbook (docs/runbook-april-spike.md) exists. Run it before  
+  March, not during.
+
+  10. Error monitoring. When something breaks at 11pm on March 30, you need to know. Sentry  
+  has a free tier and takes an hour to wire up.
+
+  ---
+  The sequencing that makes sense:
+
+  Week 1:  PostgreSQL stores → deploy to a real server with HTTPS
+  Week 2:  Apply for WhatsApp Business API (long lead time) + Remita live keys
+  Week 3:  NIN/BVN verification via Dojah or Smile Identity
+  Week 4:  Portal map walk-through + rate limiting
+  Before March: Load test against the runbook
+
+  The domain logic — engine, lifecycle, pack generator, TCC readiness — is production-ready  
+  now. The gap is entirely infrastructure and third-party integrations.

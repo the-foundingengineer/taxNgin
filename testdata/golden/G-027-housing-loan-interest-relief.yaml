@@ -1,0 +1,39 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-027
+title: "Interest on loan for owner-occupied residence claimed as relief"
+kind: compute
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests HOUSING_LOAN_INTEREST relief claim. Actual ₦800,000 interest paid is deducted
+  from gross salary ₦6,000,000, reducing chargeable income to ₦5,200,000.
+
+given:
+  residency: resident
+  months_employed: 12
+  income:
+    - { category: EMPLOYMENT, label: "Salary", naira: 6000000 }
+  declared_bases: {}
+  reliefs:
+    - { code: HOUSING_LOAN_INTEREST, naira: 800000, evidence: true }
+  credits: []
+
+expect:
+  gross_income:       6000000
+  reliefs:
+    HOUSING_LOAN_INTEREST: 800000
+  total_reliefs:       800000
+  chargeable_income:  5200000
+  bands:
+    - { slice: "0 – 800,000",            amount:  800000, rate: "0%",  tax:      0 }
+    - { slice: "800,000 – 3,000,000",    amount: 2200000, rate: "15%", tax: 330000 }
+    - { slice: "3,000,000 – 5,200,000",  amount: 2200000, rate: "18%", tax: 396000 }
+  tax_payable:         726000
+  total_credits:            0
+  balance:             726000
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }

@@ -1,0 +1,29 @@
+# GOLDEN CASE
+# Review status: UNVERIFIED — awaiting practitioner sign-off.
+
+id: G-040
+title: "Late payment surcharge and interest on unpaid tax"
+kind: penalty
+year_of_assessment: 2026
+jurisdiction: NG
+rule_set_version: "0.1.0-draft"
+
+why_this_case: >
+  Tests late payment surcharge (10% on ₦1,730,400 unpaid tax = ₦173,040) and simple
+  daily interest at 27.50% MPR for 90 days (₦117,335.34). Total penalty = ₦290,375.34.
+
+given:
+  filed_on:       2027-03-31T00:00:00Z
+  as_of:          2027-06-29T00:00:00Z
+  unpaid_naira:   1730400
+  payment_due_on: 2027-03-31T00:00:00Z
+  mpr_bp:         2750
+
+expect:
+  months_in_default:      0
+  late_filing:            0
+  late_payment_surcharge: 173040
+  late_payment_interest:  117335.34
+  penalty_total:          290375.34
+
+review: { status: UNVERIFIED, reviewer_name: "", reviewer_membership_no: "", reviewed_at: null, comments: "" }
